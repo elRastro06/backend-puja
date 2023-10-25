@@ -5,6 +5,9 @@ import express from "express";
 const app = express();
 const port = 5000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });
@@ -55,13 +58,7 @@ app.delete("/:id", async (req, res) => {
 
 app.delete("/", async (req, res) => {
     try {
-        let filtro = {};
-        const queries = req.query;
-        if (queries.productId) {
-            filtro = { ...filtro, productId: parseInt(queries.productId) };
-        }
-
-        let result = await bids.deleteMany(filtro);
+        let result = await bids.deleteMany(req.body);
         res.send(result).status(200);
     } catch (e) {
         res.send(e).status(500);
