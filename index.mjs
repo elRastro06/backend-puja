@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import bids from "./conn.mjs";
 import express from "express";
 
@@ -9,27 +10,69 @@ app.listen(port, () => {
 });
 
 app.get("/", async (req, res) => {
-    let collection = await bids;
-    let results = await collection.find({})
-        .toArray();
-    res.send(results).status(200);
+    try {
+        let filtro = {};
+        const queries = req.query;
+        if (queries.productId) {
+            filtro = { ...filtro, productId: parseInt(queries.productId) };
+        }
+
+        let results = await bids.find(filtro)
+            .toArray();
+        res.send(results).status(200);
+    } catch (e) {
+        res.send(e).status(500);
+    }
 });
 
 app.post("/", async (req, res) => {
-    const bid = { productId: 1, amount: 50 };
-    const result = await bids.insertOne(bid);
-    console.log(result);
-    res.send(result);
+    try {
+        const bid = req.body;
+        const result = await bids.insertOne(bid);
+        res.send(result).status(200);
+    } catch (e) {
+        res.send(e).status(500);
+    }
 });
 
 app.get("/:id", async (req, res) => {
-
+    try {
+        const result = await bids.findOne({ _id: new ObjectId(req.params.id) });
+        res.send(result).status(200);
+    } catch (e) {
+        res.send(e).status(500);
+    }
 });
 
 app.delete("/:id", async (req, res) => {
+    try {
+        const result = await bids.deleteOne({ _id: new ObjectId(req.params.id) });
+        res.send(result).status(200);
+    } catch (e) {
+        res.send(e).status(500);
+    }
+});
 
+app.delete("/", async (req, res) => {
+    try {
+        let filtro = {};
+        const queries = req.query;
+        if (queries.productId) {
+            filtro = { ...filtro, productId: parseInt(queries.productId) };
+        }
+
+        let result = await bids.deleteMany(filtro);
+        res.send(result).status(200);
+    } catch (e) {
+        res.send(e).status(500);
+    }
 });
 
 app.put("/:id", async (req, res) => {
-
+    try {
+        const result = await bids.updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body });
+        res.send(result).status(200);
+    } catch(e) {
+        res.send(e).status(500);
+    }
 });
