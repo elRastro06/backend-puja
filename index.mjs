@@ -16,8 +16,12 @@ app.get("/", async (req, res) => {
     try {
         let filtro = {};
         const queries = req.query;
+
         if (queries.productId) {
             filtro = { ...filtro, productId: parseInt(queries.productId) };
+        }
+        if(queries.amount) {
+            filtro = { ...filtro, amount: parseFloat(queries.amount) }
         }
 
         let results = await bids.find(filtro)
@@ -28,9 +32,26 @@ app.get("/", async (req, res) => {
     }
 });
 
+app.get("/highest", async (req, res) => {
+    try {
+        const productId = req.query.productId;
+        const productBids = await bids.find({ productId: parseInt(productId) }).toArray();
+        let maxAmount = 0;
+        productBids.forEach(p => {
+            if(maxAmount < p.amount) maxAmount = p.amount;
+        });
+        res.send({ maxAmount: maxAmount }).status(200);
+    } catch (e) {
+        res.send(e).status(500);
+    }
+});
+
 app.post("/", async (req, res) => {
     try {
         const bid = req.body;
+        /*const highestBid = fetch(req.protocol + "://" + req.get("host") + "/highest?productId=" + bid.productId).then(response => {
+            console.log(response);
+        });*/
         const result = await bids.insertOne(bid);
         res.send(result).status(200);
     } catch (e) {

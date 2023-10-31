@@ -1,5 +1,7 @@
 import { MongoClient } from "mongodb";
-const connectionString = "mongodb+srv://pepe:pepe@cluster.d6ahydd.mongodb.net/?retryWrites=true&w=majority";
+import 'dotenv/config';
+
+const connectionString = process.env.CONNECTION_STRING;
 const client = new MongoClient(connectionString);
 let conn;
 try {
