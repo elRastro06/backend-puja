@@ -15,6 +15,7 @@ app.listen(port, () => {
 app.get("/", async (req, res) => {
     try {
         let filtro = {};
+        let orden = {};
         const queries = req.query;
 
         if (queries.productId) {
@@ -24,7 +25,11 @@ app.get("/", async (req, res) => {
             filtro = { ...filtro, amount: parseFloat(queries.amount) }
         }
 
-        let results = await bids.find(filtro)
+        if(queries.orderBy && queries.order){
+            orden = { ...orden, [queries.orderBy]: queries.order };
+        }
+
+        let results = await bids.find(filtro).sort(orden)
             .toArray();
         res.send(results).status(200);
     } catch (e) {
