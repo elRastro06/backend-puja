@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import bids from "./conn.mjs";
 import express from "express";
+import axios from "axios";
 
 const app = express();
 const port = 5000;
@@ -54,11 +55,21 @@ app.get("/highest", async (req, res) => {
 app.post("/", async (req, res) => {
     try {
         const bid = req.body;
-        /*const highestBid = fetch(req.protocol + "://" + req.get("host") + "/highest?productId=" + bid.productId).then(response => {
-            console.log(response);
-        });*/
-        const result = await bids.insertOne(bid);
-        res.send(result).status(200);
+
+        let highestBid = 0;
+        const response = await axios.get(req.protocol + "://" + req.get("host") + "/highest?productId=" + bid.productId);
+        highestBid = response.data.maxAmount;
+
+        let result, status;
+        if(req.body.amount > highestBid) {
+            result = await bids.insertOne({ ...bid, date: new Date() });
+            status = 200;
+        }else {
+            result = { information: "Bid not inserted. Higher bid already exists" };
+            status = 400;
+        }
+
+        res.send(result).status(status);
     } catch (e) {
         res.send(e).status(500);
     }

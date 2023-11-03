@@ -9,6 +9,6 @@ try {
 } catch (e) {
     console.error(e);
 }
-let db = conn.db("sample_training");
+let db = conn.db("el-rastro");
 let bids = db.collection("bids");
 export default bids;
