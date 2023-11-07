@@ -1,7 +1,7 @@
 {
-  "name": "elrastro-backend",
+  "name": "puja-backend",
   "version": "1.0.0",
-  "description": "elrastro-backend",
+  "description": "puja-backend",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
