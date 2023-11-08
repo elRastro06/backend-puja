@@ -26,8 +26,12 @@ app.get("/", async (req, res) => {
             filtro = { ...filtro, amount: parseFloat(queries.amount) }
         }
 
-        if(queries.orderBy && queries.order){
-            orden = { ...orden, [queries.orderBy]: queries.order };
+        if(queries.orderBy && queries.order) {
+            if (queries.order == "asc") {
+                orden = { ...orden, [queries.orderBy]: 1 };
+            } else if (queries.order == "desc") {
+                orden = { ...orden, [queries.orderBy]: -1 };
+            }
         }
 
         let results = await bids.find(filtro).sort(orden)
