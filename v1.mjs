@@ -9,6 +9,8 @@ app.get("/", async (req, res) => {
     try {
         let filtro = {};
         let orden = {};
+        let offset = 0;
+        let limit = 0;
         const queries = req.query;
 
         if (queries.productId) {
@@ -26,8 +28,14 @@ app.get("/", async (req, res) => {
             }
         }
 
-        let results = await bids.find(filtro).sort(orden)
-            .toArray();
+        if(queries.offset) {
+            offset = parseInt(queries.offset);
+        }
+        if(queries.limit) {
+            limit = parseInt(queries.limit);
+        }
+
+        let results = await bids.find(filtro).sort(orden).skip(offset).limit(limit).toArray();
         res.send(results).status(200);
     } catch (e) {
         res.send(e).status(500);
