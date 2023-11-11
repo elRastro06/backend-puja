@@ -48,7 +48,7 @@ app.get("/", async (req, res) => {
 app.get("/highest", async (req, res) => {
     try {
         const productId = req.query.productId;
-        const productBids = await bids.find({ productId: parseInt(productId) }).toArray();
+        const productBids = await bids.find({ productId: productId }).toArray();
         let maxAmount = 0;
         productBids.forEach(p => {
             if(maxAmount < p.amount) maxAmount = p.amount;
