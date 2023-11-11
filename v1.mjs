@@ -14,10 +14,13 @@ app.get("/", async (req, res) => {
         const queries = req.query;
 
         if (queries.productId) {
-            filtro = { ...filtro, productId: queries.productId) };
+            filtro = { ...filtro, productId: queries.productId };
         }
         if(queries.amount) {
-            filtro = { ...filtro, amount: parseFloat(queries.amount) }
+            filtro = { ...filtro, amount: parseFloat(queries.amount) };
+        }
+        if(queries.userId) {
+            filtro = { ...filtro, userId: queries.userId };
         }
 
         if(queries.orderBy && queries.order) {
