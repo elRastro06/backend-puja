@@ -1,7 +1,9 @@
 import express from "express";
 import v1 from "./v1.mjs";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 const port = 5002;
 
 app.use(express.json());
