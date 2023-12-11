@@ -1,0 +1,7 @@
+version: '3.1'
+services:
+  pujas:
+    build: .
+    container_name: pujas
+    ports:
+      - 5002:5002
