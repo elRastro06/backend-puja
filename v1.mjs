@@ -5,6 +5,8 @@ import axios from "axios";
 
 const app = express.Router();
 
+const pujas = process.env.PUJAS != undefined ? process.env.PUJAS : "localhost";
+
 app.get("/", async (req, res) => {
     try {
         let filtro = {};
@@ -64,7 +66,7 @@ app.post("/", async (req, res) => {
         const bid = req.body;
 
         let highestBid = 0;
-        const response = await axios.get(req.protocol + "://" + req.get("host") + "/v1/highest?productId=" + bid.productId);
+        const response = await axios.get(`http://${pujas}/v1/highest?productId=${bid.productId}`);
         highestBid = response.data.maxAmount;
 
         let result, status;
