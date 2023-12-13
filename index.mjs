@@ -26,9 +26,8 @@ const verifyToken = async (req, res, next) => {
     if ((req.method == 'PUT' || req.method == 'DELETE') && req.params.id != undefined) {
         const bid = await bids.findOne({ _id: new ObjectId(req.params.id) });
         if (bid.userId != user._id) res.status(402).send("Unauthorized action");
-    } else if (req.method == 'DELETE' && req.params.id == undefined) {
-        res.status(402).send("Unauthorized action");
-    }
+    } else if (req.method == 'DELETE' && req.params.id == undefined) res.status(402).send("Unauthorized action");
+    else if (req.method == 'POST' && req.body.userId != user._id) res.status(402).send("Unauthorized action");
 
     next();
   } catch {
