@@ -8,116 +8,133 @@ const app = express.Router();
 const pujas = process.env.PUJAS != undefined ? process.env.PUJAS : "localhost";
 
 app.get("/", async (req, res) => {
-    try {
-        let filtro = {};
-        let orden = {};
-        let offset = 0;
-        let limit = 0;
-        const queries = req.query;
+  try {
+    let filtro = {};
+    let orden = {};
+    let offset = 0;
+    let limit = 0;
+    const queries = req.query;
 
-        if (queries.productId) {
-            filtro = { ...filtro, productId: queries.productId };
-        }
-        if(queries.amount) {
-            filtro = { ...filtro, amount: parseFloat(queries.amount) };
-        }
-        if(queries.userId) {
-            filtro = { ...filtro, userId: queries.userId };
-        }
-
-        if(queries.orderBy && queries.order) {
-            if (queries.order == "asc") {
-                orden = { ...orden, [queries.orderBy]: 1 };
-            } else if (queries.order == "desc") {
-                orden = { ...orden, [queries.orderBy]: -1 };
-            }
-        }
-
-        if(queries.offset) {
-            offset = parseInt(queries.offset);
-        }
-        if(queries.limit) {
-            limit = parseInt(queries.limit);
-        }
-
-        let results = await bids.find(filtro).sort(orden).skip(offset).limit(limit).toArray();
-        res.send(results).status(200);
-    } catch (e) {
-        res.send(e).status(500);
+    if (queries.productId) {
+      console.log("for productId ", queries.productId);
+      filtro = { ...filtro, productId: queries.productId };
     }
+    if (queries.amount) {
+      filtro = { ...filtro, amount: parseFloat(queries.amount) };
+    }
+    if (queries.userId) {
+      filtro = { ...filtro, userId: queries.userId };
+    }
+
+    if (queries.orderBy && queries.order) {
+      if (queries.order == "asc") {
+        orden = { ...orden, [queries.orderBy]: 1 };
+      } else if (queries.order == "desc") {
+        orden = { ...orden, [queries.orderBy]: -1 };
+      }
+    }
+
+    if (queries.offset) {
+      offset = parseInt(queries.offset);
+    }
+    if (queries.limit) {
+      limit = parseInt(queries.limit);
+    }
+
+    let results = await bids
+      .find(filtro)
+      .sort(orden)
+      .skip(offset)
+      .limit(limit)
+      .toArray();
+    console.log(results);
+    res.send(results).status(200);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 app.get("/highest", async (req, res) => {
-    try {
-        const productId = req.query.productId;
-        const productBids = await bids.find({ productId: productId }).toArray();
-        let maxAmount = 0;
-        productBids.forEach(p => {
-            if(maxAmount < p.amount) maxAmount = p.amount;
-        });
-        res.send({ maxAmount: maxAmount }).status(200);
-    } catch (e) {
-        res.send(e).status(500);
-    }
+  try {
+    const productId = req.query.productId;
+    const productBids = await bids.find({ productId: productId }).toArray();
+    let maxAmount = 0;
+    productBids.forEach((p) => {
+      if (maxAmount < p.amount) maxAmount = p.amount;
+    });
+    res.send({ maxAmount: maxAmount }).status(200);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 app.post("/", async (req, res) => {
-    try {
-        const bid = req.body;
+  try {
+    const bid = req.body;
 
-        let highestBid = 0;
-        const response = await axios.get(`http://${pujas}:5002/v1/highest?productId=${bid.productId}`);
-        highestBid = response.data.maxAmount;
+    let highestBid = 0;
+    const response = await axios.get(
+      `http://${pujas}:5002/v1/highest?productId=${bid.productId}`,
+      {
+        headers: {
+          Authorization: req.headers.authorization,
+        },
+      }
+    );
+    highestBid = response.data.maxAmount;
 
-        let result, status;
-        if(req.body.amount > highestBid) {
-            result = await bids.insertOne({ ...bid, date: new Date() });
-            status = 200;
-        }else {
-            result = { information: "Bid not inserted. Higher bid already exists" };
-            status = 400;
-        }
-
-        res.send(result).status(status);
-    } catch (e) {
-        res.send(e).status(500);
+    let result, status;
+    if (req.body.amount > highestBid) {
+      result = await bids.insertOne({ ...bid, date: new Date() });
+      status = 200;
+    } else {
+      result = { information: "Bid not inserted. Higher bid already exists" };
+      status = 400;
     }
+
+    res.send(result).status(status);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 app.get("/:id", async (req, res) => {
-    try {
-        const result = await bids.findOne({ _id: new ObjectId(req.params.id) });
-        res.send(result).status(200);
-    } catch (e) {
-        res.send(e).status(500);
-    }
+  try {
+    const result = await bids.findOne({ _id: new ObjectId(req.params.id) });
+    res.send(result).status(200);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 app.delete("/:id", async (req, res) => {
-    try {
-        const result = await bids.deleteOne({ _id: new ObjectId(req.params.id) });
-        res.send(result).status(200);
-    } catch (e) {
-        res.send(e).status(500);
-    }
+  try {
+    const result = await bids.deleteOne({ _id: new ObjectId(req.params.id) });
+    res.send(result).status(200);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 app.delete("/", async (req, res) => {
-    try {
-        let result = await bids.deleteMany(req.body);
-        res.send(result).status(200);
-    } catch (e) {
-        res.send(e).status(500);
-    }
+  try {
+    let result = await bids.deleteMany(req.body);
+    res.send(result).status(200);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 app.put("/:id", async (req, res) => {
-    try {
-        const result = await bids.updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body });
-        res.send(result).status(200);
-    } catch(e) {
-        res.send(e).status(500);
-    }
+  try {
+    const result = await bids.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: req.body }
+    );
+    res.send(result).status(200);
+  } catch (e) {
+    res.send(e).status(500);
+  }
 });
 
 export default app;
