@@ -17,12 +17,12 @@ app.listen(port, () => {
 });
 
 const clients =
-  process.env.CLIENTS != undefined ? process.env.CLIENTS : "localhost";
+  process.env.CLIENTS_URL;
 
 const verifyToken = async (req, res, next) => {
   try {
     if (req.method != "GET") {
-      const response = await axios.get(`http://${clients}:5000/checkToken/${req.headers.authorization}`);
+      const response = await axios.get(`${clients}/checkToken/${req.headers.authorization}`);
       const user = response.data.user;
 
       if (

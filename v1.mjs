@@ -5,7 +5,7 @@ import axios from "axios";
 
 const app = express.Router();
 
-const pujas = process.env.PUJAS != undefined ? process.env.PUJAS : "localhost";
+const pujas = process.env.BIDS_URL;
 
 app.get("/", async (req, res) => {
   try {
@@ -74,7 +74,7 @@ app.post("/", async (req, res) => {
 
     let highestBid = 0;
     const response = await axios.get(
-      `http://${pujas}:5002/v1/highest?productId=${bid.productId}`,
+      `${pujas}/v1/highest?productId=${bid.productId}`,
       {
         headers: {
           Authorization: req.headers.authorization,
