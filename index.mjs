@@ -21,21 +21,28 @@ const clients =
 
 const verifyToken = async (req, res, next) => {
   try {
-    const response = await axios.get(
-      `http://${clients}:5000/checkToken/${req.headers.authorization}`
-    );
-    const user = response.data.user;
+    if (req.method != "GET") {
+      const response = await axios.get(`http://${clients}:5000/checkToken/${req.headers.authorization}`);
+      const user = response.data.user;
 
-    if (
-      (req.method == "PUT" || req.method == "DELETE") &&
-      req.params.id != undefined
-    ) {
-      const bid = await bids.findOne({ _id: new ObjectId(req.params.id) });
-      if (bid.userId != user._id) res.status(402).send("Unauthorized action");
-    } else if (req.method == "DELETE" && req.params.id == undefined)
-      res.status(402).send("Unauthorized action");
-    else if (req.method == "POST" && req.body.userId != user._id)
-      res.status(402).send("Unauthorized action");
+      if (
+        (req.method == "PUT" || req.method == "DELETE") &&
+        req.params.id != undefined
+      ) {
+        const bid = await bids.findOne({ _id: new ObjectId(req.params.id) });
+        if (bid.userId != user._id) {
+          res.status(402).send("Unauthorized action");
+          return;
+        }
+      } else if (req.method == "DELETE" && req.params.id == undefined) {
+        res.status(402).send("Unauthorized action");
+        return;
+      }
+      else if (req.method == "POST" && req.body.userId != user._id) {
+        res.status(402).send("Unauthorized action");
+        return;
+      }
+    }
 
     next();
   } catch {
