@@ -16,7 +16,6 @@ app.get("/", async (req, res) => {
     const queries = req.query;
 
     if (queries.productId) {
-      console.log("for productId ", queries.productId);
       filtro = { ...filtro, productId: queries.productId };
     }
     if (queries.amount) {
@@ -47,7 +46,6 @@ app.get("/", async (req, res) => {
       .skip(offset)
       .limit(limit)
       .toArray();
-    console.log(results);
     res.send(results).status(200);
   } catch (e) {
     res.send(e).status(500);
